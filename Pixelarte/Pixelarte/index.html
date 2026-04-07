@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIXELARTE | Tus ideas impresas con impacto</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            blue: '#0A2540',      // Azul profundo
+                            electric: '#0052FF',  // Azul eléctrico
+                            red: '#FF3366',       // Rojo vibrante
+                            dark: '#030B14'       // Fondo oscuro
+                        }
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Ajuste estricto para evitar overflow en celulares */
+        html, body {
+            background-color: #030B14;
+            color: #ffffff;
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Utilidades Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-dark {
+            background: rgba(3, 11, 20, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #030B14; }
+        ::-webkit-scrollbar-thumb { background: #0052FF; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FF3366; }
+
+        /* Animaciones Scroll Reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+
+        /* Efectos Hover y Microinteracciones */
+        .btn-glow {
+            transition: all 0.3s ease;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 20px rgba(255, 51, 102, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Expansión de Tarjetas de Servicio */
+        .service-content {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.4s ease-out;
+        }
+        .service-card.expanded .service-content {
+            grid-template-rows: 1fr;
+        }
+        .service-inner {
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.4s ease-out;
+            transition-delay: 0s;
+        }
+        .service-card.expanded .service-inner {
+            opacity: 1;
+            transition-delay: 0.2s;
+        }
+        .service-icon-rotate {
+            transition: transform 0.4s ease;
+        }
+        .service-card.expanded .service-icon-rotate {
+            transform: rotate(45deg);
+        }
+
+        /* Filtro de Galería */
+        .gallery-item {
+            transition: all 0.5s ease;
+        }
+        .gallery-item.hidden-item {
+            opacity: 0;
+            transform: scale(0.9);
+            pointer-events: none;
+            position: absolute;
+        }
+
+        /* Menú Fullscreen Mobile */
+        #mobile-menu {
+            transition: opacity 0.4s ease, visibility 0.4s;
+        }
+        #mobile-menu.menu-open {
+            opacity: 1;
+            visibility: visible;
+        }
+        #mobile-menu.menu-closed {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        /* Orbes de luz de fondo */
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            opacity: 0.4;
+            max-width: 100vw;
+            pointer-events: none;
+        }
+
+        /* --- FONDO CUADRICULADO 3D PARA EL MENÚ --- */
+        .grid-3d-container {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            background-color: #030B14;
+            perspective: 600px;
+            z-index: 0;
+        }
+        .grid-3d-plane {
+            position: absolute;
+            width: 200%;
+            height: 150%;
+            left: -50%;
+            background-image: 
+                linear-gradient(rgba(0, 82, 255, 0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 82, 255, 0.4) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .grid-bottom {
+            position: absolute;
+            inset: 0;
+            bottom: -20%;
+            transform: rotateX(75deg);
+            transform-origin: bottom center;
+            -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+            mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+        }
+        .grid-top {
+            position: absolute;
+            inset: 0;
+            top: -20%;
+            transform: rotateX(-75deg);
+            transform-origin: top center;
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+        }
+		/* Animación para el movimiento de la cuadrícula */
+        @keyframes moveGrid {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(40px); } /* Debe coincidir con el tamaño del cuadro de la cuadrícula */
+        }
+
+        .grid-animated {
+            animation: moveGrid 2s linear infinite;
+        }
+		
+		
+        /* Animación de latido Premium (solo luz, sin rebote) */
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+
+        .btn-pulse-premium {
+            animation: pulseGlow 2.5s infinite;
+        }
+		/* Animación de barrido de luz (Shimmer) para el botón del Hero */
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+		/* --- SERVICIOS PREMIUM UPGRADE --- */
+
+        /* Efecto de enfoque cuando una tarjeta está abierta */
+        #service-grid {
+            transition: all 0.4s ease;
+        }
+        #service-grid.focused-parent .service-card:not(.expanded) {
+            opacity: 0.3; /* Oscurece las tarjetas no seleccionadas */
+            filter: blur(2px); /* Desenfoca ligeramente */
+        }
+        
+        /* Efecto de "encendido" para la tarjeta abierta */
+        .service-card.expanded {
+            box-shadow: 0 0 60px rgba(0, 82, 255, 0.2), 0 0 10px rgba(255, 51, 102, 0.1);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: scale(1.02); /* Aumenta sutilmente el tamaño */
+            z-index: 1; /* Asegura que el brillo esté por encima */
+        }
+
+        /* Patrón de botón Shimmer Premium adaptado para Servicios */
+        .btn-shimmer-service {
+            border-width: 1px;
+            box-shadow: 0 0 20px rgba(0, 82, 255, 0.3);
+        }
+        .btn-shimmer-service:hover {
+            box-shadow: 0 0 30px rgba(0, 82, 255, 0.5);
+            transform: translateY(-2px);
+        }
+		/* Keyframes para el movimiento difuso de fondo fotorrealista (BRUTAL) */
+        @keyframes glowMove {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(15vw, -10vh) scale(1.2); }
+            66% { transform: translate(-10vw, 15vh) scale(0.8); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        /* Clase para el gran orbe difuso y animado de fondo */
+        .diffuse-animated-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            /* Centrado usando márgenes negativos para que 'transform' quede libre para la animación */
+            margin-top: -400px;
+            margin-left: -500px;
+            width: 1000px; /* Tamaño más concentrado */
+            height: 800px;
+            border-radius: 100%;
+            /* Colores mucho más intensos para que resalten en el fondo oscuro */
+            background-image: radial-gradient(circle, rgba(138, 43, 226, 0.5) 0%, rgba(255, 51, 102, 0.25) 40%, rgba(0, 82, 255, 0.1) 60%, transparent 80%); 
+            filter: blur(90px); /* Blur moderado para que no desaparezca */
+            animation: glowMove 10s infinite ease-in-out; /* Más rápido para que notes el movimiento */
+            pointer-events: none; 
+            opacity: 0.9; /* Mayor visibilidad */
+            z-index: 0; 
+        }
+		/* Ajustes para que el orbe difuso se vea perfecto en celulares */
+        @media (max-width: 768px) {
+            .diffuse-animated-glow {
+                width: 400px;        /* Tamaño más compacto */
+                height: 400px;
+                margin-top: -200px;  /* La mitad de la altura para mantenerlo centrado */
+                margin-left: -200px; /* La mitad del ancho para mantenerlo centrado */
+                filter: blur(60px);  /* Menos blur para que el color no se diluya en pantallas pequeñas */
+            }
+        }
+		/* --- BOTONES FLOTANTES PREMIUM UPGRADE --- */
+
+        /* Keyframes para la entrada suave */
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .reveal-floating {
+            animation: slideUpFade 1s ease-out forwards;
+        }
+
+        /* Estilo para las etiquetas de texto de la barra flotante */
+        .floating-label {
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateX(10px);
+            pointer-events: none; /* No bloquear interacción */
+        }
+        .group:hover .floating-label {
+            opacity: 1;
+            transform: translateX(0);
+        }
+		/* --- NAVEGACIÓN PREMIUM (ISLA FLOTANTE & MAXIMALISTA) --- */
+        
+        /* 1. Isla Flotante (Escritorio) */
+        .nav-pill {
+            position: relative;
+            z-index: 1;
+        }
+        .nav-pill::before {
+            content: '';
+            position: absolute;
+            inset: -6px -16px;
+            background: rgba(0, 82, 255, 0.15); /* Azul eléctrico ultra suave */
+            border: 1px solid rgba(0, 82, 255, 0.3);
+            border-radius: 100px;
+            z-index: -1;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-pill:hover::before {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* 2. Tipografía Maximalista (Móvil) */
+        .max-text {
+            font-size: clamp(3rem, 12vw, 6rem); /* Texto colosal adaptativo */
+            font-weight: 900;
+            line-height: 1.1;
+            text-transform: uppercase;
+            color: transparent; /* Texto transparente por defecto */
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3); /* Solo el contorno */
+            transition: all 0.4s ease;
+            position: relative;
+        }
+        .max-text:hover, .max-text:active {
+            color: #ffffff; /* Se rellena de blanco al tocar */
+            -webkit-text-stroke: 0px transparent;
+            text-shadow: 0 0 40px rgba(0, 82, 255, 0.8); /* Resplandor azul */
+            transform: translateX(10px); /* Ligero desplazamiento */
+        }
+        /* Color especial para contacto en móvil */
+        .max-text-brand {
+            -webkit-text-stroke: 1px rgba(255, 51, 102, 0.6); /* Contorno Rojo */
+        }
+        .max-text-brand:hover, .max-text-brand:active {
+            color: #FF3366;
+            text-shadow: 0 0 40px rgba(255, 51, 102, 0.8);
+        }
+		/* --- FIRMA HANT (PREMIUM Y FLUIDA) --- */
+        @keyframes hantShine {
+            to { background-position: 200% center; }
+        }
+        .hant-signature {
+            background: linear-gradient(to right, #0052FF 20%, #FF3366 40%, #FF3366 60%, #0052FF 80%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: hantShine 4s linear infinite;
+            font-weight: 900;
+            display: inline-block;
+            filter: drop-shadow(0 0 4px rgba(0, 82, 255, 0.4));
+        }
+		
+		/* --- ANIMACIÓN EN CASCADA (STAGGERED) MENU MÓVIL ÉLITE --- */
+        @keyframes staggeredSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) rotateX(-15deg); /* Entra desde abajo con un ligero ángulo 3D */
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateX(0);
+            }
+        }
+
+        /* Ocultar los enlaces cuando el menú está cerrado */
+        #mobile-menu.menu-closed .mobile-link {
+            opacity: 0;
+            animation: none; /* Resetea la animación al cerrar */
+        }
+
+        /* Lanzar la animación cuando el menú se abre */
+        #mobile-menu.menu-open .mobile-link {
+            opacity: 0; /* Estado inicial transparente */
+            /* Usamos una curva bezier para que la animación empiece rápida y termine suave (efecto fricción) */
+            animation: staggeredSlideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Los Delays (El secreto de la cascada) */
+        #mobile-menu.menu-open .mobile-link:nth-child(1) { animation-delay: 0.15s; }
+        #mobile-menu.menu-open .mobile-link:nth-child(2) { animation-delay: 0.25s; }
+        #mobile-menu.menu-open .mobile-link:nth-child(3) { animation-delay: 0.35s; }
+        #mobile-menu.menu-open .mobile-link:nth-child(4) { animation-delay: 0.45s; }
+        #mobile-menu.menu-open .mobile-link:nth-child(5) { animation-delay: 0.55s; }
+    </style>
+</head>
+<body class="antialiased selection:bg-brand-red selection:text-white">
+
+    <header id="navbar" class="fixed top-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-6xl z-50 transition-all duration-500 py-3 px-6 lg:px-8 bg-[#02060D]/60 backdrop-blur-xl border border-white/10 rounded-full flex justify-between items-center shadow-2xl">
+        
+        <a href="#inicio" class="group flex items-center justify-center -ml-2">
+			<div class="pixelarte-neon relative h-8 md:h-10 w-auto">
+				<img src="img/logo.png" alt="PIXELARTE" class="h-full w-auto object-contain">
+			</div>
+		</a>
+
+        <nav class="hidden md:flex items-center gap-10">
+            <a href="#inicio" class="nav-pill text-[11px] font-bold tracking-[0.2em] uppercase text-white/70 hover:text-white transition-colors duration-300">Inicio</a>
+            <a href="#nosotros" class="nav-pill text-[11px] font-bold tracking-[0.2em] uppercase text-white/70 hover:text-white transition-colors duration-300">Nosotros</a>
+            <a href="#servicios" class="nav-pill text-[11px] font-bold tracking-[0.2em] uppercase text-white/70 hover:text-white transition-colors duration-300">Servicios</a>
+            <a href="#galeria" class="nav-pill text-[11px] font-bold tracking-[0.2em] uppercase text-white/70 hover:text-white transition-colors duration-300">Portafolio</a>
+            
+            <a href="https://wa.me/5562524763?text=Hola,%20quiero%20cotizar" target="_blank" class="group relative overflow-hidden bg-[#02060D]/80 border border-brand-electric/50 text-white px-7 py-2.5 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase transition-all duration-500 hover:border-brand-electric hover:shadow-[0_0_20px_rgba(0,82,255,0.4)] flex items-center gap-2 ml-2">
+                <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-brand-electric/20 to-transparent group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                
+                <span class="relative z-10 group-hover:text-brand-electric transition-colors duration-300">Cotizar</span>
+                
+                <i class="fa-solid fa-arrow-right text-[10px] relative z-10 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 text-brand-electric"></i>
+            </a>
+        </nav>
+
+        <button id="burger-btn" class="md:hidden text-2xl text-white/80 focus:outline-none z-[60] relative transition-transform duration-300 hover:scale-110">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </header>
+
+    <div id="mobile-menu" class="menu-closed fixed inset-0 z-[70] flex flex-col justify-center bg-[#02060D]">
+        <div class="absolute inset-0 opacity-[0.03] z-0" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 32px 32px;"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-brand-electric/20 blur-[100px] rounded-full pointer-events-none z-0"></div>
+        
+        <button id="close-menu-btn" class="absolute top-8 right-8 w-12 h-12 flex items-center justify-center text-white/50 hover:text-brand-red text-4xl z-20 transition-all duration-300 hover:rotate-90">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <nav class="relative z-10 flex flex-col items-start pl-8 md:pl-16 gap-2 mt-10">
+            <a href="#inicio" class="mobile-link max-text">Inicio</a>
+            <a href="#nosotros" class="mobile-link max-text">Nosotros</a>
+            <a href="#servicios" class="mobile-link max-text">Servicios</a>
+            <a href="#galeria" class="mobile-link max-text">Portafolio</a>
+            <a href="#contacto" class="mobile-link max-text max-text-brand mt-4">Contacto</a>
+        </nav>
+        
+        <div class="absolute bottom-10 left-8 md:left-16 flex gap-6 z-10">
+            <a href="#" class="text-white/40 hover:text-white text-2xl transition-colors"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" class="text-white/40 hover:text-white text-2xl transition-colors"><i class="fa-brands fa-tiktok"></i></a>
+        </div>
+    </div>
+
+    <section id="inicio" class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+        <video autoplay loop muted playsinline class="block md:hidden absolute top-0 left-0 w-full h-full object-cover z-0 opacity-40">
+            <source src="vid/hero_v.mp4" type="video/mp4">
+            <img src="TU_IMAGEN_MOVIL.jpg" alt="Impresión" class="w-full h-full object-cover">
+        </video>
+
+        <video autoplay loop muted playsinline class="hidden md:block absolute top-0 left-0 w-full h-full object-cover z-0 opacity-40">
+            <source src="vid/hero_h.mp4" type="video/mp4">
+            <img src="TU_IMAGEN_ESCRITORIO.jpg" alt="Impresión" class="w-full h-full object-cover">
+        </video>
+        
+        <div class="absolute inset-0 bg-gradient-to-b from-brand-dark/80 via-brand-blue/60 to-brand-dark z-0"></div>
+        <div class="bg-orb w-96 h-96 bg-brand-electric top-1/4 left-1/4"></div>
+
+        <div class="container mx-auto px-6 relative z-10 text-center flex flex-col items-center">
+            <div class="inline-block px-4 py-1.5 rounded-full glass mb-6 reveal">
+                <span class="text-brand-electric font-semibold text-sm uppercase tracking-wider flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-brand-red animate-pulse"></span>
+                    Agencia Visual & Taller Creativo
+                </span>
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight max-w-4xl reveal reveal-delay-1">
+                Tus ideas impresas <br class="hidden md:block" />
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-electric to-brand-red">con impacto.</span>
+            </h1>
+            
+            <p class="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl reveal reveal-delay-2 leading-relaxed">
+                En PIXELARTE convertimos creatividad en ropa, promocionales, impresión publicitaria y presencia digital. 
+            </p>
+            
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-8 w-full mt-4 reveal reveal-delay-3">
+                
+                <a href="https://wa.me/5562524763?text=Hola,%20quiero%20cotizar%20un%20proyecto" target="_blank" class="group relative overflow-hidden bg-brand-dark/60 backdrop-blur-md border border-brand-electric/50 text-white px-10 py-4 rounded-full font-bold text-[13px] tracking-[0.2em] uppercase transition-all duration-500 hover:border-brand-electric hover:shadow-[0_0_30px_rgba(0,82,255,0.4)] flex items-center justify-center gap-3 w-full sm:w-auto">
+                    <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                    
+                    <i class="fa-brands fa-whatsapp text-xl text-brand-electric group-hover:text-white transition-colors duration-300 relative z-10"></i>
+                    <span class="relative z-10">Cotizar proyecto</span>
+                </a>
+
+                <a href="#servicios" class="group flex items-center gap-3 text-white/70 hover:text-white font-semibold text-[13px] tracking-[0.2em] uppercase transition-colors duration-300 w-full sm:w-auto justify-center">
+                    <span>Explorar servicios</span>
+                    <span class="w-8 h-[1px] bg-white/30 group-hover:bg-brand-red group-hover:w-12 transition-all duration-300 relative">
+                        <i class="fa-solid fa-chevron-right absolute -right-1 -top-[5px] text-[10px] text-brand-red opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:translate-x-1"></i>
+                    </span>
+                </a>
+                
+            </div>
+        </div>
+    </section>
+
+    <section id="nosotros" class="py-24 relative overflow-hidden">
+        <div class="bg-orb w-[500px] h-[500px] bg-brand-red/20 right-0 top-0"></div>
+        <div class="container mx-auto px-6 lg:px-12">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="reveal">
+                    <h2 class="text-4xl md:text-5xl font-extrabold mb-8 tracking-tight">Diseño y producción <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-electric to-brand-red">sin límites.</span></h2>
+                    
+                    <p class="text-gray-300 text-lg md:text-xl font-light leading-loose mb-6">
+                        En PIXELARTE creemos que cada marca, negocio o evento merece verse profesional, creativo y memorable. Nuestra razón de ser es <span class="text-white font-medium">transformar ideas en piezas visuales</span> que conecten, vendan y dejen huella.
+                    </p>
+                    <p class="text-gray-400 text-base md:text-lg font-light leading-relaxed">
+                        Combinamos el trabajo meticuloso de un taller de impresión con la estrategia visual de una agencia digital.
+                    </p>
+                </div>
+
+					<div class="relative p-8 rounded-[2rem] reveal reveal-delay-1 bg-white/[0.02] backdrop-blur-xl border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-[2rem] pointer-events-none"></div>
+                    <h3 class="text-xl font-semibold mb-6 border-b border-white/10 pb-4">¿Por qué elegirnos?</h3>
+                    <ul class="space-y-5">
+                        <li class="flex items-start gap-4">
+                            <div class="mt-1 flex items-center justify-center w-8 h-8 rounded-full bg-brand-electric/10 text-brand-electric shadow-[0_0_15px_rgba(0,82,255,0.3)] border border-brand-electric/30 shrink-0">
+                                <i class="fa-solid fa-check text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white">Calidad en cada detalle</h4>
+                                <p class="text-sm text-gray-400">Materiales y tintas premium para máxima durabilidad.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <div class="mt-1 flex items-center justify-center w-8 h-8 rounded-full bg-brand-electric/10 text-brand-electric shadow-[0_0_15px_rgba(0,82,255,0.3)] border border-brand-electric/30 shrink-0">
+                                <i class="fa-solid fa-check text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white">Soluciones 360°</h4>
+                                <p class="text-sm text-gray-400">Impresos físicos y diseño web en un solo lugar.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <div class="mt-1 flex items-center justify-center w-8 h-8 rounded-full bg-brand-electric/10 text-brand-electric shadow-[0_0_15px_rgba(0,82,255,0.3)] border border-brand-electric/30 shrink-0">
+                                <i class="fa-solid fa-check text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white">Atención rápida y cercana</h4>
+                                <p class="text-sm text-gray-400">Entregas puntuales con enfoque profesional.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="servicios" class="py-24 bg-brand-dark relative overflow-hidden">
+        <div class="bg-orb w-[600px] h-[600px] bg-brand-electric/10 left-[-100px] top-1/4"></div>
+        
+        <div class="container mx-auto px-6 lg:px-12">
+            
+            <div class="text-center mb-16 reveal">
+                <span class="text-brand-electric font-bold tracking-widest uppercase text-sm">Lo que hacemos</span>
+                <h2 class="text-4xl md:text-5xl font-extrabold mt-2 tracking-tight">Nuestros Servicios</h2>
+            </div>
+
+            <div id="service-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-400">
+                
+                <div class="service-card group cursor-pointer reveal relative rounded-3xl overflow-hidden shadow-lg h-full flex flex-col border border-white/5 bg-black/50" onclick="toggleService(this)">
+                    <div class="absolute inset-0 bg-[url('img/t1.jpeg')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110 z-0"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/20 z-0"></div>
+                    
+                    <div class="relative z-10 p-8 flex justify-between items-end mt-auto">
+                        <div>
+                            <div class="w-12 h-12 glass rounded-full flex items-center justify-center text-xl mb-4 text-brand-electric shadow-[0_0_15px_rgba(0,82,255,0.3)]">
+                                <i class="fa-solid fa-shirt"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold">Personalización en ropa con sublimación y DTF</h3>
+                            <p class="text-gray-300 text-sm mt-1">Playeras, sudaderas y gorras.</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm service-icon-rotate">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                    </div>
+
+                    <div class="relative z-10 px-8 pb-0 service-content bg-black/40 backdrop-blur-md">
+                        <div class="service-inner pt-4 pb-8 border-t border-white/10 mt-4">
+                            <p class="text-gray-300 text-base leading-relaxed mb-6 font-light">Personalizamos tus prendas con acabados vibrantes y duraderos. Ideal para uniformes, eventos y marcas de moda.</p>
+                            
+                            <a href="https://wa.me/5562524763?text=Hola,%20quiero%20informes%20sobre%20Sublimación%20en%20ropa" target="_blank" class="btn-shimmer-service relative overflow-hidden bg-brand-dark/50 border border-brand-electric/50 text-white px-8 py-3 rounded-full text-base font-bold tracking-widest uppercase flex items-center justify-center gap-3 w-full group transition-all" onclick="event.stopPropagation()">
+                                <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                                <i class="fa-brands fa-whatsapp text-2xl text-brand-electric"></i>
+                                <span>Más información</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-card group cursor-pointer reveal reveal-delay-1 relative rounded-3xl overflow-hidden shadow-lg h-full flex flex-col border border-white/5 bg-black/50" onclick="toggleService(this)">
+                    <div class="absolute inset-0 bg-[url('img/t2.jpeg')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110 z-0"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/20 z-0"></div>
+                    
+                    <div class="relative z-10 p-8 flex justify-between items-end mt-auto">
+                        <div>
+                            <div class="w-12 h-12 glass rounded-full flex items-center justify-center text-xl mb-4 text-brand-red shadow-[0_0_15px_rgba(255,51,102,0.3)]">
+                                <i class="fa-solid fa-mug-hot"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold">Artículos promocionales personalizados</h3>
+                            <p class="text-gray-300 text-sm mt-1">Tazas, vasos, termos y más.</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm service-icon-rotate">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="relative z-10 px-8 pb-0 service-content bg-black/40 backdrop-blur-md">
+                        <div class="service-inner pt-4 pb-8 border-t border-white/10 mt-4">
+                            <p class="text-gray-300 text-base leading-relaxed mb-6 font-light">Regalos corporativos y recuerdos con tu logotipo impreso en alta resolución.</p>
+                            
+                            <a href="https://wa.me/5562524763?text=Hola,%20quiero%20informes%20sobre%20Objetos%20Personalizados" target="_blank" class="btn-shimmer-service relative overflow-hidden bg-brand-dark/50 border border-brand-red/50 text-white px-8 py-3 rounded-full text-base font-bold tracking-widest uppercase flex items-center justify-center gap-3 w-full group transition-all" onclick="event.stopPropagation()">
+                                <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                                <i class="fa-brands fa-whatsapp text-2xl text-brand-red"></i>
+                                <span>Más información</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-card group cursor-pointer reveal reveal-delay-2 relative rounded-3xl overflow-hidden shadow-lg h-full flex flex-col border border-white/5 bg-black/50" onclick="toggleService(this)">
+                    <div class="absolute inset-0 bg-[url('img/t3.jpeg')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110 z-0"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/20 z-0"></div>
+                    
+                    <div class="relative z-10 p-8 flex justify-between items-end mt-auto">
+                        <div>
+                            <div class="w-12 h-12 glass rounded-full flex items-center justify-center text-xl mb-4 text-brand-electric shadow-[0_0_15px_rgba(0,82,255,0.3)]">
+                                <i class="fa-solid fa-print"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold">Impresión Digital</h3>
+                            <p class="text-gray-300 text-sm mt-1">Lonas, banners y gran formato.</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm service-icon-rotate">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="relative z-10 px-8 pb-0 service-content bg-black/40 backdrop-blur-md">
+                        <div class="service-inner pt-4 pb-8 border-t border-white/10 mt-4">
+                            <p class="text-gray-300 text-base leading-relaxed mb-6 font-light">Impacta a lo grande con calidad fotográfica en exteriores e interiores. Medidas personalizadas.</p>
+                            
+                            <a href="https://wa.me/5562524763?text=Hola,%20quiero%20informes%20sobre%20Impresión%20Digital" target="_blank" class="btn-shimmer-service relative overflow-hidden bg-brand-dark/50 border border-brand-electric/50 text-white px-8 py-3 rounded-full text-base font-bold tracking-widest uppercase flex items-center justify-center gap-3 w-full group transition-all" onclick="event.stopPropagation()">
+                                <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                                <i class="fa-brands fa-whatsapp text-2xl text-brand-electric"></i>
+                                <span>Más información</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-card group cursor-pointer reveal relative rounded-3xl overflow-hidden shadow-lg h-full flex flex-col border border-white/5 bg-black/50" onclick="toggleService(this)">
+                    <div class="absolute inset-0 bg-[url('img/t4.jpeg')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110 z-0"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/20 z-0"></div>
+                    
+                    <div class="relative z-10 p-8 flex justify-between items-end mt-auto">
+                        <div>
+                            <div class="w-12 h-12 glass rounded-full flex items-center justify-center text-xl mb-4 text-brand-red shadow-[0_0_15px_rgba(255,51,102,0.3)]">
+                                <i class="fa-solid fa-copy"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold">Material Publicitario</h3>
+                            <p class="text-gray-300 text-sm mt-1">Flyers, folletos y tarjetas.</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm service-icon-rotate">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="relative z-10 px-8 pb-0 service-content bg-black/40 backdrop-blur-md">
+                        <div class="service-inner pt-4 pb-8 border-t border-white/10 mt-4">
+                            <p class="text-gray-300 text-base leading-relaxed mb-6 font-light">Entregamos papelería corporativa que da una primera impresión impecable.</p>
+                            
+                            <a href="https://wa.me/5562524763?text=Hola,%20quiero%20informes%20sobre%20Material%20Publicitario" target="_blank" class="btn-shimmer-service relative overflow-hidden bg-brand-dark/50 border border-brand-red/50 text-white px-8 py-3 rounded-full text-base font-bold tracking-widest uppercase flex items-center justify-center gap-3 w-full group transition-all" onclick="event.stopPropagation()">
+                                <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                                <i class="fa-brands fa-whatsapp text-2xl text-brand-red"></i>
+                                <span>Más información</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-card group cursor-pointer reveal reveal-delay-1 md:col-span-2 relative rounded-3xl overflow-hidden shadow-lg h-full flex flex-col border border-white/5 bg-black/50" onclick="toggleService(this)">
+                    <div class="absolute inset-0 bg-[url('img/t5.jpeg')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110 z-0"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/20 z-0"></div>
+                    
+                    <div class="relative z-10 p-8 flex justify-between items-end mt-auto">
+                        <div>
+                            <div class="w-12 h-12 glass rounded-full flex items-center justify-center text-xl mb-4 text-brand-electric shadow-[0_0_15px_rgba(0,82,255,0.3)]">
+                                <i class="fa-solid fa-laptop-code"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold">Landing Pages</h3>
+                            <p class="text-gray-300 text-sm mt-1">Sitios web modernos para negocios.</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm service-icon-rotate">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="relative z-10 px-8 pb-0 service-content bg-black/40 backdrop-blur-md">
+                        <div class="service-inner pt-4 pb-8 border-t border-white/10 mt-4">
+                            <p class="text-gray-300 text-base leading-relaxed mb-6 font-light">Llevamos tu marca al mundo digital con sitios web ultrarrápidos, diseñados para convertir visitas en clientes reales.</p>
+                            
+                            <a href="https://wa.me/5562524763?text=Hola,%20quiero%20informes%20sobre%20Landing%20Pages" target="_blank" class="btn-shimmer-service relative overflow-hidden bg-brand-dark/50 border border-brand-electric/50 text-white px-8 py-3 rounded-full text-base font-bold tracking-widest uppercase flex items-center justify-center gap-3 w-full group transition-all" onclick="event.stopPropagation()">
+                                <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                                <i class="fa-brands fa-whatsapp text-2xl text-brand-electric"></i>
+                                <span>Más información</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+	
+ <section id="galeria" class="py-24 relative overflow-hidden bg-[#02060D]">
+        <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+        <div class="bg-orb w-[400px] h-[400px] bg-brand-electric/10 right-[-100px] top-1/3"></div>
+
+        <div class="container mx-auto px-6 lg:px-12">
+            
+            <div class="text-center mb-16 reveal">
+                <span class="text-brand-electric font-bold tracking-widest uppercase text-sm">Nuestro Portafolio</span>
+                <h2 class="text-4xl md:text-5xl font-extrabold mt-2 tracking-tight">Trabajos <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-electric to-brand-red">Destacados</span></h2>
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-6 md:gap-10 mb-14 reveal" id="gallery-filters">
+                <button class="filter-btn active relative text-[11px] font-bold tracking-[0.2em] uppercase transition-all duration-300 pb-2 border-b-2 text-brand-electric border-brand-electric drop-shadow-[0_0_8px_rgba(0,82,255,0.8)]" data-filter="all">Todos</button>
+                <button class="filter-btn relative text-[11px] font-bold tracking-[0.2em] uppercase transition-all duration-300 pb-2 border-b-2 text-white/50 hover:text-white border-transparent hover:border-white/30" data-filter="ropa">Ropa</button>
+                <button class="filter-btn relative text-[11px] font-bold tracking-[0.2em] uppercase transition-all duration-300 pb-2 border-b-2 text-white/50 hover:text-white border-transparent hover:border-white/30" data-filter="objetos">Objetos</button>
+                <button class="filter-btn relative text-[11px] font-bold tracking-[0.2em] uppercase transition-all duration-300 pb-2 border-b-2 text-white/50 hover:text-white border-transparent hover:border-white/30" data-filter="impresion">Impresión</button>
+                <button class="filter-btn relative text-[11px] font-bold tracking-[0.2em] uppercase transition-all duration-300 pb-2 border-b-2 text-white/50 hover:text-white border-transparent hover:border-white/30" data-filter="web">Web</button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 relative" id="gallery-grid">
+                
+                <div class="gallery-item relative group rounded-[2rem] overflow-hidden aspect-[4/5] reveal shadow-2xl bg-brand-dark" data-category="ropa">
+                    <img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=1964&auto=format&fit=crop" alt="Playera" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#02060D] via-[#02060D]/40 to-transparent opacity-90 lg:opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+                        <div class="transform lg:translate-y-6 group-hover:translate-y-0 transition-transform duration-500">
+                            <span class="inline-block px-3 py-1 mb-3 text-[10px] font-bold tracking-widest uppercase rounded-full border border-brand-electric text-brand-electric bg-brand-electric/10 backdrop-blur-md">Sublimación</span>
+                            <h4 class="text-2xl font-bold text-white mb-1">Colección Urbana</h4>
+                            <p class="text-white/60 text-sm font-light">Diseño y estampado premium</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item relative group rounded-[2rem] overflow-hidden aspect-[4/5] reveal reveal-delay-1 shadow-2xl bg-brand-dark" data-category="objetos">
+                    <img src="https://scontent.fmex42-1.fna.fbcdn.net/v/t39.30808-6/660366966_122174843612686457_2556526845711568203_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=13d280&_nc_ohc=4oqrqwqCKdoQ7kNvwHIzWSn&_nc_oc=AdovBW_TJe5HnF7ztYORhzf_BU2yK_apZSPRDBIK1vbzu8kBg5YqYSlZGJt-6twI6ds&_nc_zt=23&_nc_ht=scontent.fmex42-1.fna&_nc_gid=JwCoE9y4yeXE3poKxoh9Rw&_nc_ss=7a3a8&oh=00_Af2FhC8UlVde76VoaTJfqt_3ZqHZbat2ryQvk6j1l7rW4g&oe=69D30FA3" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#02060D] via-[#02060D]/40 to-transparent opacity-90 lg:opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+                        <div class="transform lg:translate-y-6 group-hover:translate-y-0 transition-transform duration-500">
+                            <span class="inline-block px-3 py-1 mb-3 text-[10px] font-bold tracking-widest uppercase rounded-full border border-brand-red text-brand-red bg-brand-red/10 backdrop-blur-md">Objetos</span>
+                            <h4 class="text-2xl font-bold text-white mb-1">Termos Corporativos</h4>
+                            <p class="text-white/60 text-sm font-light">Grabado de alta precisión</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item relative group rounded-[2rem] overflow-hidden aspect-[4/5] reveal reveal-delay-2 shadow-2xl bg-brand-dark" data-category="impresion">
+                    <img src="img/e2.jpeg" alt="Lona" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#02060D] via-[#02060D]/40 to-transparent opacity-90 lg:opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+                        <div class="transform lg:translate-y-6 group-hover:translate-y-0 transition-transform duration-500">
+                            <span class="inline-block px-3 py-1 mb-3 text-[10px] font-bold tracking-widest uppercase rounded-full border border-brand-electric text-brand-electric bg-brand-electric/10 backdrop-blur-md">Gran Formato</span>
+                            <h4 class="text-2xl font-bold text-white mb-1">Lona Publicitaria</h4>
+                            <p class="text-white/60 text-sm font-light">Resolución fotográfica para eventos</p>
+                        </div>
+                    </div>
+                </div>
+				
+				<div class="gallery-item relative group rounded-[2rem] overflow-hidden aspect-[4/5] reveal reveal-delay-2 shadow-2xl bg-brand-dark" data-category="impresion">
+                    <img src="img/e3.jpeg" alt="Lona" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#02060D] via-[#02060D]/40 to-transparent opacity-90 lg:opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+                        <div class="transform lg:translate-y-6 group-hover:translate-y-0 transition-transform duration-500">
+                            <span class="inline-block px-3 py-1 mb-3 text-[10px] font-bold tracking-widest uppercase rounded-full border border-brand-red text-brand-red bg-brand-red/10 backdrop-blur-md">Stickers</span>
+                            <h4 class="text-2xl font-bold text-white mb-1">Stickers por Planilla</h4>
+                            <p class="text-white/60 text-sm font-light">Stickers</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item relative group rounded-[2rem] overflow-hidden aspect-[4/5] reveal shadow-2xl bg-brand-dark" data-category="web">
+                    <img src="https://images.unsplash.com/photo-1522542550221-31fd19575a2d?q=80&w=2070&auto=format&fit=crop" alt="Web" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#02060D] via-[#02060D]/40 to-transparent opacity-90 lg:opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+                        <div class="transform lg:translate-y-6 group-hover:translate-y-0 transition-transform duration-500">
+                            <span class="inline-block px-3 py-1 mb-3 text-[10px] font-bold tracking-widest uppercase rounded-full border border-brand-electric text-brand-electric bg-brand-electric/10 backdrop-blur-md">Landing Page</span>
+                            <h4 class="text-2xl font-bold text-white mb-1">Diseño Web Startup</h4>
+                            <p class="text-white/60 text-sm font-light">Desarrollo UI/UX enfocado a conversión</p>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="gallery-item relative group rounded-[2rem] overflow-hidden aspect-[4/5] reveal reveal-delay-1 shadow-2xl bg-brand-dark" data-category="ropa">
+                    <img src="https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=1936&auto=format&fit=crop" alt="Gorra" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#02060D] via-[#02060D]/40 to-transparent opacity-90 lg:opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+                        <div class="transform lg:translate-y-6 group-hover:translate-y-0 transition-transform duration-500">
+                            <span class="inline-block px-3 py-1 mb-3 text-[10px] font-bold tracking-widest uppercase rounded-full border border-brand-electric text-brand-electric bg-brand-electric/10 backdrop-blur-md">Gorras</span>
+                            <h4 class="text-2xl font-bold text-white mb-1">Colección Snapback</h4>
+                            <p class="text-white/60 text-sm font-light">Bordado 3D y aplicaciones</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item relative group rounded-[2rem] overflow-hidden aspect-[4/5] reveal reveal-delay-2 shadow-2xl bg-brand-dark" data-category="impresion">
+                    <img src="img/e1.jpeg" alt="Tarjetas" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#02060D] via-[#02060D]/40 to-transparent opacity-90 lg:opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+                        <div class="transform lg:translate-y-6 group-hover:translate-y-0 transition-transform duration-500">
+                            <span class="inline-block px-3 py-1 mb-3 text-[10px] font-bold tracking-widest uppercase rounded-full border border-brand-red text-brand-red bg-brand-red/10 backdrop-blur-md">Papelería</span>
+                            <h4 class="text-2xl font-bold text-white mb-1">Tarjetas Premium</h4>
+                            <p class="text-white/60 text-sm font-light">Acabados en foil mate</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+	
+	<section class="py-32 md:py-48 relative overflow-hidden bg-[#02060D]">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-brand-electric/10 blur-[120px] rounded-[100%] pointer-events-none z-0"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[200px] bg-brand-red/10 blur-[80px] rounded-[100%] pointer-events-none z-0"></div>
+
+        <div class="container mx-auto px-6 relative z-10 flex flex-col items-center text-center space-y-6 md:space-y-12">
+            
+            <div class="reveal inline-block px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-0 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+                <span class="text-white/70 font-semibold text-[10px] md:text-xs uppercase tracking-[0.3em] flex items-center gap-2">
+                    <i class="fa-solid fa-boxes-stacked text-brand-electric"></i> Escala y Volumen
+                </span>
+            </div>
+
+            <p class="reveal reveal-delay-1 text-xl md:text-3xl text-white/80 font-light tracking-wide mb-0">
+                Desde una pieza única hasta producción en masa.
+            </p>
+
+            <div class="reveal reveal-delay-2 flex flex-col items-center justify-center w-full mt-0">
+                <span class="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white mb-0 z-10">
+                    Trabajamos
+                </span>
+                <h2 class="font-black uppercase italic leading-[0.9] tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-brand-electric via-[#a334fa] to-brand-red drop-shadow-[0_0_40px_rgba(0,82,255,0.3)] w-full flex flex-col lg:flex-row items-center justify-center gap-x-4 space-y-2 lg:space-y-0" 
+                    style="font-size: clamp(2.8rem, 7vw, 9rem);">
+                    <span class="block">Mayoreo</span> 
+                    <span class="text-white/20 not-italic text-[2rem] md:text-[3rem] lg:text-6xl align-middle">&</span> 
+                    <span class="block">Menudeo</span>
+                </h2>
+            </div>
+
+        </div>
+    </section>
+   
+
+    <section class="py-32 relative overflow-hidden bg-[#02060D] border-y border-white/5">
+        <div class="absolute inset-0 opacity-[0.04] z-10" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 32px 32px;"></div>
+        
+        <div class="diffuse-animated-glow"></div>
+
+        <div class="container mx-auto px-6 relative z-10 flex flex-col items-center text-center reveal">
+            <div class="inline-block px-5 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-8 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+                <span class="text-white/70 font-semibold text-[10px] md:text-xs uppercase tracking-[0.3em]">¿Listo para empezar?</span>
+            </div>
+
+            <h2 class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-0 tracking-tight text-white">Haz que tu marca se vea</h2>
+            <h2 class="text-[5rem] md:text-[8rem] lg:text-[10rem] leading-none font-black mb-8 tracking-tighter uppercase italic text-transparent bg-clip-text bg-gradient-to-r from-brand-red via-[#ff6b6b] to-brand-electric drop-shadow-[0_0_30px_rgba(255,51,102,0.3)]">
+                Brutal.
+            </h2>
+            
+            <p class="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-14 font-light leading-relaxed">
+                Ropa, promocionales, impresos de gran formato y desarrollo web en un solo lugar. No somos solo un taller, somos tu <span class="text-white font-medium">brazo creativo</span>.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-8 w-full sm:w-auto">
+                
+                <a href="https://wa.me/5562524763?text=Hola,%20quiero%20hacer%20un%20proyecto%20brutal" target="_blank" class="group relative overflow-hidden bg-[#02060D]/80 backdrop-blur-xl border border-[#25D366]/50 text-white px-10 py-5 rounded-full font-bold text-[13px] tracking-[0.2em] uppercase transition-all duration-500 hover:border-[#25D366] hover:shadow-[0_0_40px_rgba(37,211,102,0.3)] flex items-center justify-center gap-4 w-full sm:w-auto shadow-2xl">
+                    <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#25D366]/20 to-transparent group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                    <i class="fa-brands fa-whatsapp text-2xl text-[#25D366] group-hover:text-white transition-colors duration-300 relative z-10"></i>
+                    <span class="relative z-10">Escribir al estudio</span>
+                </a>
+
+                <a href="tel:+5562524763" class="group flex items-center gap-3 text-white/50 hover:text-white font-semibold text-[13px] tracking-[0.2em] uppercase transition-colors duration-300 w-full sm:w-auto justify-center">
+                    <i class="fa-solid fa-phone"></i>
+                    <span>Llamar ahora</span>
+                    <span class="w-8 h-[1px] bg-white/30 group-hover:bg-brand-electric group-hover:w-12 transition-all duration-300 relative">
+                        <i class="fa-solid fa-chevron-right absolute -right-1 -top-[5px] text-[10px] text-brand-electric opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:translate-x-1"></i>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </section>
+    
+	<section id="proceso" class="py-24 relative overflow-hidden bg-[#02060D] border-t border-white/5">
+        <div class="bg-orb w-[500px] h-[500px] bg-brand-red/10 left-[-150px] top-1/2 -translate-y-1/2"></div>
+        <div class="bg-orb w-[400px] h-[400px] bg-brand-electric/10 right-[-100px] bottom-0"></div>
+
+        <div class="container mx-auto px-6 lg:px-12 relative z-10">
+            
+            <div class="text-center mb-20 reveal">
+                <span class="text-brand-electric font-bold tracking-widest uppercase text-sm">¿Cómo trabajamos?</span>
+                <h2 class="text-4xl md:text-5xl font-extrabold mt-2 tracking-tight">De la idea a <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-electric to-brand-red">tus manos</span></h2>
+            </div>
+
+            <div class="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-24">
+                
+                <div class="hidden lg:block absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-electric/30 to-transparent -translate-y-1/2 z-0"></div>
+
+                <div class="group relative p-8 rounded-[2rem] bg-[#030B14]/80 backdrop-blur-xl border border-white/5 hover:border-brand-electric/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(0,82,255,0.15)] reveal z-10">
+                    <div class="absolute top-4 right-6 text-6xl font-black text-white/5 group-hover:text-white/10 transition-colors duration-500 pointer-events-none">01</div>
+                    <div class="w-14 h-14 rounded-full bg-brand-electric/10 flex items-center justify-center text-brand-electric mb-6 group-hover:scale-110 transition-transform duration-500 border border-brand-electric/20 shadow-[0_0_15px_rgba(0,82,255,0.2)]">
+                        <i class="fa-solid fa-comment-dots text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Brief & Existencias</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed font-light">
+                        Nos cuentas tu idea y te asesoramos sobre materiales. <span class="text-white font-medium border-b border-brand-electric/30 pb-[1px] hover:border-brand-electric transition-colors">Verificamos el stock en tiempo real</span> y te enviamos un presupuesto a la medida.
+                    </p>
+                </div>
+
+                <div class="group relative p-8 rounded-[2rem] bg-[#030B14]/80 backdrop-blur-xl border border-white/5 hover:border-brand-red/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(255,51,102,0.15)] reveal reveal-delay-1 z-10">
+                    <div class="absolute top-4 right-6 text-6xl font-black text-white/5 group-hover:text-white/10 transition-colors duration-500 pointer-events-none">02</div>
+                    <div class="w-14 h-14 rounded-full bg-brand-red/10 flex items-center justify-center text-brand-red mb-6 group-hover:scale-110 transition-transform duration-500 border border-brand-red/20 shadow-[0_0_15px_rgba(255,51,102,0.2)]">
+                        <i class="fa-solid fa-pen-ruler text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Diseño & Mockups</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed font-light">Aterrizamos tu visión. Generamos propuestas visuales y renders para que apruebes el resultado final.</p>
+                </div>
+
+                <div class="group relative p-8 rounded-[2rem] bg-[#030B14]/80 backdrop-blur-xl border border-white/5 hover:border-brand-electric/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(0,82,255,0.15)] reveal reveal-delay-2 z-10">
+                    <div class="absolute top-4 right-6 text-6xl font-black text-white/5 group-hover:text-white/10 transition-colors duration-500 pointer-events-none">03</div>
+                    <div class="w-14 h-14 rounded-full bg-brand-electric/10 flex items-center justify-center text-brand-electric mb-6 group-hover:scale-110 transition-transform duration-500 border border-brand-electric/20 shadow-[0_0_15px_rgba(0,82,255,0.2)]">
+                        <i class="fa-solid fa-gears text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Producción Premium</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed font-light">Magia en el taller. Entramos a fase de manufactura con tecnología de punta y controles de calidad rigurosos.</p>
+                </div>
+
+                <div class="group relative p-8 rounded-[2rem] bg-[#030B14]/80 backdrop-blur-xl border border-white/5 hover:border-brand-red/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(255,51,102,0.15)] reveal reveal-delay-3 z-10">
+                    <div class="absolute top-4 right-6 text-6xl font-black text-white/5 group-hover:text-white/10 transition-colors duration-500 pointer-events-none">04</div>
+                    <div class="w-14 h-14 rounded-full bg-brand-red/10 flex items-center justify-center text-brand-red mb-6 group-hover:scale-110 transition-transform duration-500 border border-brand-red/20 shadow-[0_0_15px_rgba(255,51,102,0.2)]">
+                        <i class="fa-solid fa-box-open text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Empaque & Entrega</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed font-light">Tu proyecto, listo para impactar. Preparamos todo de forma segura y te lo enviamos hasta tus manos.</p>
+                </div>
+
+            </div>
+
+            <div class="pt-16 border-t border-white/5 text-center reveal">
+                <div class="inline-block px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-6">
+                    <span class="text-white/70 font-semibold text-[10px] uppercase tracking-[0.2em] flex items-center gap-2">
+                        <i class="fa-solid fa-plane-departure text-brand-electric"></i> Logística Nacional
+                    </span>
+                </div>
+                
+                <h3 class="text-2xl font-bold text-white mb-4">Envíos rápidos, seguros y rastreables.</h3>
+                <p class="text-white/50 text-base mb-12 font-light max-w-2xl mx-auto">Llegamos a todo México con alianzas estratégicas para que tu proyecto llegue en tiempo y forma, sin importar dónde estés.</p>
+
+                <div class="flex flex-wrap justify-center items-center gap-10 md:gap-20">
+                    
+                    <div class="group flex items-center justify-center cursor-default filter grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500 transform hover:scale-110">
+                        <span class="text-4xl font-black italic tracking-tighter text-[#D40511] bg-[#FFCC00] px-4 py-1 rounded-sm shadow-lg">DHL</span>
+                    </div>
+
+                    <div class="group flex items-center justify-center cursor-default filter grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500 transform hover:scale-110">
+                        <span class="text-3xl font-black tracking-tight text-[#c8102e] lowercase">estafeta</span>
+                    </div>
+
+                    <div class="group flex items-center justify-center cursor-default filter grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500 transform hover:scale-110">
+                        <div class="bg-[#351C15] px-3 py-1.5 rounded-md flex items-center shadow-lg border border-[#FFB500]/20">
+                            <i class="fa-solid fa-shield text-[#FFB500] mr-2 text-xl"></i>
+                            <span class="text-3xl font-bold tracking-tighter text-[#FFB500]">UPS</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>	
+	 
+	 
+	 
+    <footer id="contacto" class="bg-[#020408] pt-24 pb-12 border-t border-white/5 relative overflow-hidden">
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-brand-electric/5 blur-[100px] rounded-t-[100%] pointer-events-none z-0"></div>
+
+        <div class="container mx-auto px-6 lg:px-12 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-20">
+                
+                <div class="lg:col-span-4 pr-0 lg:pr-12">
+                   
+				   <a href="#inicio" class="flex items-center gap-2 mb-4 md:mb-0 focus:outline-none focus:ring-2 focus:ring-brand-electric/50 rounded">
+						<img src="img/logo.png" alt="PIXELARTE Taller Creativo" class="h-8 w-auto block object-contain opacity-80 hover:opacity-100 transition-opacity">
+					</a>
+                    <p class="text-white/50 text-sm mb-8 font-light leading-relaxed">
+                        Agencia creativa y taller de impresión. Transformamos ideas en productos físicos y digitales de alto impacto. Tu visión, materializada.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://www.facebook.com/share/1AhegQqPP5/" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-brand-electric hover:border-brand-electric hover:shadow-[0_0_15px_rgba(0,82,255,0.3)] transition-all duration-300">
+                            <i class="fa-brands fa-facebook-f"></i>
+                        </a>
+                        
+                        <a href="https://www.instagram.com/pixelartemex/" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-[#E1306C] hover:border-[#E1306C] hover:shadow-[0_0_15px_rgba(225,48,108,0.3)] transition-all duration-300">
+                            <i class="fa-brands fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <h4 class="text-[11px] font-bold tracking-[0.2em] uppercase text-white mb-8">Navegación</h4>
+                    <ul class="space-y-4">
+                        <li><a href="#inicio" class="group flex items-center text-white/50 hover:text-white transition-colors text-sm font-light"><span class="transform transition-transform group-hover:translate-x-2">Inicio</span></a></li>
+                        <li><a href="#nosotros" class="group flex items-center text-white/50 hover:text-white transition-colors text-sm font-light"><span class="transform transition-transform group-hover:translate-x-2">Sobre Nosotros</span></a></li>
+                        <li><a href="#servicios" class="group flex items-center text-white/50 hover:text-white transition-colors text-sm font-light"><span class="transform transition-transform group-hover:translate-x-2">Servicios</span></a></li>
+                        <li><a href="#galeria" class="group flex items-center text-white/50 hover:text-white transition-colors text-sm font-light"><span class="transform transition-transform group-hover:translate-x-2">Portafolio</span></a></li>
+                    </ul>
+                </div>
+
+                <div class="lg:col-span-3">
+                    <h4 class="text-[11px] font-bold tracking-[0.2em] uppercase text-white mb-8">Especialidades</h4>
+                    <ul class="space-y-4">
+                        <li><a href="#" class="group flex items-center text-white/50 hover:text-brand-electric transition-colors text-sm font-light"><span class="transform transition-transform group-hover:translate-x-2">Sublimación en Ropa</span></a></li>
+                        <li><a href="#" class="group flex items-center text-white/50 hover:text-brand-red transition-colors text-sm font-light"><span class="transform transition-transform group-hover:translate-x-2">Objetos Personalizados</span></a></li>
+                        <li><a href="#" class="group flex items-center text-white/50 hover:text-brand-electric transition-colors text-sm font-light"><span class="transform transition-transform group-hover:translate-x-2">Impresión Digital</span></a></li>
+                        <li><a href="#" class="group flex items-center text-white/50 hover:text-brand-electric transition-colors text-sm font-light"><span class="transform transition-transform group-hover:translate-x-2">Landing Pages</span></a></li>
+                    </ul>
+                </div>
+
+                <div class="lg:col-span-3">
+                    <h4 class="text-[11px] font-bold tracking-[0.2em] uppercase text-white mb-8">Estudio</h4>
+                    <ul class="space-y-5">
+                        <li class="flex items-start gap-4 text-white/50 text-sm font-light group">
+                            <i class="fa-solid fa-location-dot mt-1 text-white/30 group-hover:text-brand-red transition-colors"></i>
+                            <span class="leading-relaxed">Av. Creatividad 123, Zona Centro, Ciudad, CP 00000</span>
+                        </li>
+                        <li class="flex items-center gap-4 text-white/50 text-sm font-light group">
+                            <i class="fa-brands fa-whatsapp text-white/30 group-hover:text-[#25D366] transition-colors"></i>
+                            <a href="https://wa.me/5562524763" class="hover:text-white transition-colors">+52 1 000 000 0000</a>
+                        </li>
+                        <li class="flex items-center gap-4 text-white/50 text-sm font-light group">
+                            <i class="fa-solid fa-envelope text-white/30 group-hover:text-brand-electric transition-colors"></i>
+                            <a href="mailto:hola@pixelarte.com" class="hover:text-white transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-px after:bg-brand-electric after:transition-all after:duration-300 hover:after:w-full">hola@pixelarte.com</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+                
+                <p class="text-white/30 text-[10px] uppercase tracking-[0.2em] font-medium text-center">
+                    © 2026 PIXELARTE. Todos los derechos reservados.
+                </p>
+                
+                <div class="text-white/40 text-[10px] uppercase tracking-[0.2em] font-medium text-center leading-relaxed">
+                 <!--   <i class="fa-solid fa-heart text-brand-red animate-[pulse_1.5s_ease-in-out_infinite] mx-1 drop-shadow-[0_0_5px_rgba(255,51,102,0.6)]"></i> . -->
+                    TOTALMENTE Impact<span class="hant-signature">HANT</span>e.
+                </div>
+                
+            </div>
+        </div>
+    </footer>
+
+    <div id="floating-contact" class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 reveal-floating hidden">
+        
+        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="group flex items-center justify-end">
+            <span class="floating-label mr-3 text-[10px] text-white/70 font-bold tracking-[0.3em] uppercase whitespace-nowrap bg-[#02060D]/60 px-3 py-1.5 rounded-full backdrop-blur-md border border-white/10 shadow-lg">SUBIR</span>
+            <div class="w-12 h-12 mr-1 rounded-full border border-white/10 bg-[#02060D]/80 backdrop-blur-xl flex items-center justify-center text-white/50 hover:text-brand-electric hover:border-brand-electric hover:shadow-[0_0_20px_rgba(0,82,255,0.4)] transition-all duration-300">
+                <i class="fa-solid fa-chevron-up text-xl"></i>
+            </div>
+        </button>
+
+        <a href="tel:+5568947632" class="group flex items-center justify-end">
+            <span class="floating-label mr-3 text-[10px] text-white/70 font-bold tracking-[0.3em] uppercase whitespace-nowrap bg-[#02060D]/60 px-3 py-1.5 rounded-full backdrop-blur-md border border-white/10 shadow-lg">LLAMAR</span>
+            <div class="w-12 h-12 mr-1 rounded-full border border-white/10 bg-[#02060D]/80 backdrop-blur-xl flex items-center justify-center text-brand-red hover:border-brand-red hover:shadow-[0_0_20px_rgba(255,51,102,0.4)] transition-all duration-300">
+                <i class="fa-solid fa-phone text-xl"></i>
+            </div>
+        </a>
+        
+        <a href="https://wa.me/5562524763?text=Hola,%20quiero%20hacer%20un%20proyecto%20brutal" target="_blank" class="group flex items-center justify-end">
+            <span class="floating-label mr-3 text-[10px] text-white/70 font-bold tracking-[0.3em] uppercase whitespace-nowrap bg-[#02060D]/60 px-3 py-1.5 rounded-full backdrop-blur-md border border-white/10 shadow-lg">COTIZAR</span>
+            <div class="w-14 h-14 rounded-full border border-white/10 bg-[#02060D]/80 backdrop-blur-xl flex items-center justify-center text-[#25D366] hover:border-[#25D366] hover:shadow-[0_0_30px_rgba(37,211,102,0.5)] transition-all duration-300 hover:scale-105">
+                <i class="fa-brands fa-whatsapp text-3xl"></i>
+            </div>
+        </a>
+        
+    </div>
+
+   
+    <button id="btn-top" class="fixed bottom-24 right-6 w-10 h-10 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white opacity-0 invisible transition-all duration-300 hover:bg-brand-electric z-40 translate-y-4">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+
+    <script>
+        
+        // 1. Lógica del Menú Mobile Fullscreen
+        const burgerBtn = document.getElementById('burger-btn');
+        const closeMenuBtn = document.getElementById('close-menu-btn'); // NUEVA VARIABLE
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+        const iconBurger = burgerBtn.querySelector('i');
+        const body = document.body;
+
+        function toggleMenu() {
+            const isOpen = mobileMenu.classList.contains('menu-open');
+            
+            if (isOpen) {
+                mobileMenu.classList.remove('menu-open');
+                mobileMenu.classList.add('menu-closed');
+                iconBurger.classList.remove('fa-xmark');
+                iconBurger.classList.add('fa-bars');
+                body.style.overflow = 'auto'; // Permitir scroll
+            } else {
+                mobileMenu.classList.remove('menu-closed');
+                mobileMenu.classList.add('menu-open');
+                iconBurger.classList.remove('fa-bars');
+                iconBurger.classList.add('fa-xmark');
+                body.style.overflow = 'hidden'; // Bloquear scroll
+            }
+        }
+
+        burgerBtn.addEventListener('click', toggleMenu);
+        closeMenuBtn.addEventListener('click', toggleMenu); // NUEVO EVENTO PARA LA "X"
+        // Cerrar menú al hacer click en un enlace
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if(mobileMenu.classList.contains('menu-open')) toggleMenu();
+            });
+        });
+
+        // 2. Animaciones al hacer Scroll (Intersection Observer)
+        const revealElements = document.querySelectorAll('.reveal');
+        
+        const revealOptions = {
+            threshold: 0.15,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const revealOnScroll = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target); // Solo animar una vez
+            });
+        }, revealOptions);
+
+        revealElements.forEach(el => revealOnScroll.observe(el));
+
+        // 3. Navbar Isla Flotante efecto al scroll
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                // Al hacer scroll: se encoge un poco, aumenta el blur y el borde
+                navbar.classList.add('py-2', 'bg-[#02060D]/80', 'border-white/20');
+                navbar.classList.remove('py-3', 'bg-[#02060D]/60', 'border-white/10');
+            } else {
+                // Arriba del todo: vuelve a su tamaño y transparencia original
+                navbar.classList.add('py-3', 'bg-[#02060D]/60', 'border-white/10');
+                navbar.classList.remove('py-2', 'bg-[#02060D]/80', 'border-white/20');
+            }
+        });
+
+        // 4. Lógica de expansión de tarjetas de Servicios (PREMIUM UPGRADE)
+        const serviceGrid = document.getElementById('service-grid');
+
+        function toggleService(card) {
+            const isAlreadyExpanded = card.classList.contains('expanded');
+            
+            // 1. Cierra todas las demás tarjetas abiertas
+            document.querySelectorAll('.service-card').forEach(c => {
+                if(c !== card) c.classList.remove('expanded');
+            });
+            
+            // 2. Controla el enfoque del grid parent
+            if (!isAlreadyExpanded) {
+                // Si abrimos la tarjeta
+                card.classList.add('expanded');
+                serviceGrid.classList.add('focused-parent'); // Activa oscurecimiento de las demás
+            } else {
+                // Si ya estaba abierta y la cerramos
+                card.classList.remove('expanded');
+                serviceGrid.classList.remove('focused-parent'); // Desactiva oscurecimiento
+            }
+        }
+
+        // 5. Filtro de Galería (PREMIUM MINIMALISTA)
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const galleryItems = document.querySelectorAll('.gallery-item');
+
+        // Clases para los estados de los botones
+        const activeClasses = ['text-brand-electric', 'border-brand-electric', 'drop-shadow-[0_0_8px_rgba(0,82,255,0.8)]'];
+        const inactiveClasses = ['text-white/50', 'hover:text-white', 'border-transparent', 'hover:border-white/30'];
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 1. Quitar estado activo de todos los botones
+                filterBtns.forEach(b => {
+                    b.classList.remove(...activeClasses);
+                    b.classList.add(...inactiveClasses);
+                });
+                
+                // 2. Poner estado activo al botón clickeado
+                btn.classList.remove(...inactiveClasses);
+                btn.classList.add(...activeClasses);
+
+                const filterValue = btn.getAttribute('data-filter');
+
+                // 3. Ocultar/Mostrar imágenes
+                galleryItems.forEach(item => {
+                    if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
+                        item.classList.remove('hidden-item');
+                        setTimeout(() => item.style.display = 'block', 0);
+                    } else {
+                        item.classList.add('hidden-item');
+                        setTimeout(() => item.style.display = 'none', 400); 
+                    }
+                });
+            });
+        });
+        // 6. Botón Volver Arriba
+       // 6. Mostrar/Ocultar Barra Flotante de Contacto (PREMIUM UPGRADE)
+        const floatingContact = document.getElementById('floating-contact');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                floatingContact.classList.remove('hidden'); // Muestra la barra completa
+            } else {
+                floatingContact.classList.add('hidden'); // Oculta la barra completa
+            }
+        });
+    </script>
+	
+	<style>
+        /* Definimos la animación de parpadeo (Flicker) recalibrada */
+        @keyframes neonFlickerUpdated {
+            0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% {
+                /* Estado ENCENDIDO (Intenso y Brillante) */
+                opacity: 0.99;
+                /* Técnica de Capas de Luz (Light Layers) */
+                filter: 
+                  /* Capa 1: Núcleo (Punch) - Sombra tight, muy brillante (azul-blanco) */
+                  drop-shadow(0 0 5px rgba(200, 230, 255, 0.95)) 
+                  /* Capa 2: Color (Bleed) - Sombra medium, azul eléctrico saturado */
+                  drop-shadow(0 0 15px rgba(0, 82, 255, 0.8)) 
+                  /* Capa 3: Atmósfera (Bloom) - Sombra wide, azul eléctrico suave */
+                  drop-shadow(0 0 35px rgba(0, 82, 255, 0.45));
+            }
+            20%, 21.999%, 63%, 63.999%, 65%, 69.999% {
+                /* Estado APAGADO (Flicker Rápido) */
+                opacity: 0.35;
+                /* Resplandor mínimo */
+                filter: drop-shadow(0 0 1px rgba(0, 82, 255, 0.2));
+            }
+        }
+
+        /* Aplicamos la animación al contenedor del logo */
+        .pixelarte-neon {
+            /* Mantenemos el mismo timing para el flicker, pero con la nueva animación */
+            animation: neonFlickerUpdated 6s infinite linear;
+            will-change: filter, opacity; /* Optimización */
+        }
+
+        /* Efecto Hover: Estabiliza y aumenta el brillo de neón */
+        .pixelarte-neon:hover {
+            animation: none;
+            opacity: 1;
+            filter: 
+              /* Núcleo aún más punch en hover */
+              drop-shadow(0 0 8px rgba(220, 240, 255, 1)) 
+              /* Color saturado profundo */
+              drop-shadow(0 0 25px rgba(0, 82, 255, 0.9)) 
+              /* Mayor atmósfera */
+              drop-shadow(0 0 55px rgba(0, 82, 255, 0.5));
+            transition: filter 0.3s ease;
+        }
+    </style>
+</body>
+</html>
